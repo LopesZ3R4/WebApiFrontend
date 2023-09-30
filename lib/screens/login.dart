@@ -15,7 +15,6 @@ class LoginScreenState extends State<LoginScreen> {
   final _authService = AuthService();
 
   Future<void> loginAndNavigate(BuildContext context) async {
-    print('loginAndNavigate function has been called');
     try {
       String token = await _authService.login(
         _usernameController.text,
@@ -28,53 +27,71 @@ class LoginScreenState extends State<LoginScreen> {
       );
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white70,
-      appBar: AppBar(
-        title: const Text('Rota do Oeste'),
-      ),
-      body: Form(
-        key: _formKey,
-        child: Column(
-          children: <Widget>[
-            TextFormField(
-              controller: _usernameController,
-              decoration: const InputDecoration(labelText: 'Username'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your username';
-                }
-                return null;
-              },
-            ),
-            TextFormField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your password';
-                }
-                return null;
-              },
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green, // Use backgroundColor instead of primary
-                foregroundColor: Colors.white, // Use foregroundColor instead of onPrimary
+      backgroundColor: Colors.white,
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Image.asset('assets/logo.png',height: 100.0),
+                  const SizedBox(height: 50),
+                  TextFormField(
+                    controller: _usernameController,
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      labelText: 'Username',
+                      prefixIcon: Icon(Icons.person_outline, color: Colors.green[200]),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your username';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      labelText: 'Password',
+                      prefixIcon: Icon(Icons.lock_outline, color: Colors.green[200]),
+                    ),
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.yellow[200],
+                    ),
+                    onPressed: () {
+                      if (_formKey.currentState?.validate() ?? false) {
+                        loginAndNavigate(context);
+                      } else {
+                        print('Form is not valid');
+                      }
+                    },
+                    child: const Text('Login', style: TextStyle(fontSize: 20)),
+                  ),
+                ],
               ),
-              onPressed: () {
-                if (_formKey.currentState?.validate() ?? false) {
-                  loginAndNavigate(context);
-                }else {
-                  print('Form is not valid');
-                }
-              },
-              child: const Text('Login'),
             ),
-          ],
+          ),
         ),
       ),
     );
