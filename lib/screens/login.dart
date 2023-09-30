@@ -16,6 +16,7 @@ class LoginScreenState extends State<LoginScreen> {
 
   Future<void> loginAndNavigate(BuildContext context) async {
     try {
+      // ignore: unused_local_variable
       String token = await _authService.login(
         _usernameController.text,
         _passwordController.text,
