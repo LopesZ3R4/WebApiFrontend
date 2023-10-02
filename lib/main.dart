@@ -4,7 +4,6 @@ import 'screens/login.dart';
 import 'screens/home.dart';
 
 void main() {
-  print('running app');
   runApp(const MyApp());
 }
 
