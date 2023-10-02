@@ -78,13 +78,11 @@ class LoginScreenState extends State<LoginScreen> {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
-                      backgroundColor: Colors.yellow[200],
+                      backgroundColor: Colors.green[900],
                     ),
                     onPressed: () {
                       if (_formKey.currentState?.validate() ?? false) {
                         loginAndNavigate(context);
-                      } else {
-                        print('Form is not valid');
                       }
                     },
                     child: const Text('Login', style: TextStyle(fontSize: 20)),
