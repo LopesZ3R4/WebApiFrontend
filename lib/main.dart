@@ -15,7 +15,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Machine Warnings Management System',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+      primarySwatch: Colors.blue,
+      visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: const LoginScreen(),
       routes: {
