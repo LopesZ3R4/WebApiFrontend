@@ -6,11 +6,24 @@ import '../model/warning.dart';
 class WarningService {
   final String _baseUrl = 'http://192.168.0.243:8000';
 
-  Future<Map<String, dynamic>> getWarnings(String token, {int pageNumber = 1, int pageSize = 1, String? type, String? color, String? severity, DateTime? date}) async {
+  Future<Map<String, dynamic>> getWarnings(String token, {int pageNumber = 1, int pageSize = 10, String? type, String? color, String? severity, DateTime? date}) async {
     try {
+      var url = '$_baseUrl/Alert/GetAlerts?pageNumber=$pageNumber&pageSize=$pageSize';
+      if (type != null) {
+        url += '&type=$type';
+      }
+      if (color != null) {
+        url += '&color=$color';
+      }
+      if (severity != null) {
+        url += '&severity=$severity';
+      }
+      if (date != null) {
+        url += '&date=${date.toIso8601String()}';
+      }
+
       final response = await http.get(
-        //Uri.parse('$_baseUrl/GetAlerts?pageNumber=$pageNumber&pageSize=$pageSize&type=$type&color=$color&severity=$severity&date=${date?.toIso8601String()}'),
-        Uri.parse('$_baseUrl/Alert/GetAlerts?pageNumber=$pageNumber&pageSize=$pageSize'),
+        Uri.parse(url),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
