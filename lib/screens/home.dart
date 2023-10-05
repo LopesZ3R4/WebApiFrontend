@@ -11,6 +11,7 @@ String? _selectedSeverity;
 DateTime? _selectedDate;
 
 Widget _buildDropdown(String label, List<String> items, String? selectedValue, Function(String?) onChanged) {
+  items.insert(0, 'None');
   return DropdownButton<String>(
     hint: Row(
       children: [
@@ -34,15 +35,7 @@ Widget _buildDropdown(String label, List<String> items, String? selectedValue, F
     }).toList(),
   );
 }
-Widget _buildFilterChip(String label, String? value, Function() onRemove) {
-  return value != null
-      ? Chip(
-          label: Text('$label: $value'),
-          deleteIcon: const Icon(Icons.close),
-          onDeleted: onRemove,
-        )
-      : Container();
-}
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
@@ -53,8 +46,17 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _warningService = WarningService();
   Future<Map<String, dynamic>> _warningsFuture = Future.value({});
-  bool _isFilterExpanded = false;
-  
+  Set<String> colorItems = {};
+  Set<String> typeItems = {};
+  Set<String> severityItems = {};
+  void populateFilters() {
+  _warningsFuture.then((data) {
+    List<Warning> warnings = data['warnings'];
+    colorItems = warnings.map((warning) => warning.color).toSet();
+    typeItems = warnings.map((warning) => warning.type).toSet();
+    severityItems = warnings.map((warning) => warning.severity).toSet();
+  });
+}
 
   @override
   void initState() {
@@ -66,30 +68,38 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: warningCounts.entries.map((entry) {
-          return Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-            elevation: 5,
-            child: SizedBox(
-              height: 100,
-              width: 100,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Icon(
-                    Icons.warning,
-                    size: 40,
-                    color: getColorFromWarning(entry.key),
-                  ),
-                  Text(
-                    '${entry.value}',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                _selectedColor = entry.key;
+                _loadTokenAndFetchWarnings();
+              });
+            },
+            child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              elevation: 5,
+              child: SizedBox(
+                height: 100,
+                width: 100,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Icon(
+                      Icons.warning,
+                      size: 40,
+                      color: getColorFromWarning(entry.key),
                     ),
-                  ),
-                ],
+                    Text(
+                      '${entry.value}',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -137,14 +147,16 @@ class _HomeScreenState extends State<HomeScreen> {
       color: _selectedColor,
       severity: _selectedSeverity,
       date: _selectedDate,);
-    setState(() {});
+      _warningsFuture.then((data) {
+      List<Warning> warnings = data['warnings'];
+      colorItems = warnings.map((warning) => warning.color).toSet();
+      typeItems = warnings.map((warning) => warning.type).toSet();
+      severityItems = warnings.map((warning) => warning.severity).toSet();
+    });
+      setState(() {});
   }
   @override
   Widget build(BuildContext context) {
-    Map<String, int> warningCounts = { // testing purposes delete later
-      'Red': 5,
-      'Blue': 1,
-    };
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -158,7 +170,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 Icons.menu,
                 color: Colors.black,
               ),
-              onPressed: () { Scaffold.of(context).openDrawer(); },
+              onPressed: () { 
+                populateFilters();
+                Scaffold.of(context).openDrawer(); },
               tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
             );
           },
@@ -173,6 +187,59 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
         backgroundColor: const Color(0xFFE9E9E9),
       ),
+      drawer: FutureBuilder<Map<String, dynamic>>(
+      future: _warningsFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Drawer(child: Center(child: CircularProgressIndicator()));
+        } else if (snapshot.hasError) {
+          return Drawer(child: Center(child: Text('Error: ${snapshot.error}')));
+        } else {
+          return Drawer(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: <Widget>[
+                const DrawerHeader(
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                  ),
+                  child: Text('Filters'),
+                ),
+                 ListTile(
+                  leading: const Icon(Icons.color_lens),
+                  title: _buildDropdown('Color', colorItems.toList(), _selectedColor, (value) {
+                    setState(() {
+                      _selectedColor = value == 'None' ? null : value;
+                      _loadTokenAndFetchWarnings();
+                    });
+                  }),
+                ),
+                const Divider(),
+                ListTile(
+                  leading: const Icon(Icons.sort_by_alpha),
+                  title: _buildDropdown('Type', typeItems.toList(), _selectedType, (value) {
+                    setState(() {
+                      _selectedType = value == 'None' ? null : value;
+                      _loadTokenAndFetchWarnings();
+                    });
+                  }),
+                ),
+                const Divider(),
+                ListTile(
+                  leading: const Icon(Icons.warning),
+                  title: _buildDropdown('Severity', severityItems.toList(), _selectedSeverity, (value) {
+                    setState(() {
+                      _selectedSeverity = value == 'None' ? null : value;
+                      _loadTokenAndFetchWarnings();
+                    });
+                  }),
+                ),
+              ],
+            ),
+          );
+        }
+      },
+    ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: _warningsFuture,
         builder: (context, snapshot) {
@@ -182,52 +249,15 @@ class _HomeScreenState extends State<HomeScreen> {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else {
             List<Warning> warnings = snapshot.data!['warnings'];
-            Set<String> colorItems = warnings.map((warning) => warning.color).toSet();
-            Set<String> typeItems = warnings.map((warning) => warning.type).toSet();
-            Set<String> severityItems = warnings.map((warning) => warning.severity).toSet();
+            colorItems = warnings.map((warning) => warning.color).toSet();
+            typeItems = warnings.map((warning) => warning.type).toSet();
+            severityItems = warnings.map((warning) => warning.severity).toSet();
+            Map<String, int> warningCounts = countWarningsByColor(warnings);
+            populateFilters();
             return Column(
               children: [
+                _buildFilters(),
                 buildWarningCard(warningCounts),
-                // _buildFilters(),
-                // ExpansionPanelList(
-                //   expansionCallback: (int index, bool isExpanded) {
-                //     setState(() {
-                //       _isFilterExpanded = !_isFilterExpanded;
-                //     });
-                //   },
-                //   children: [
-                //     ExpansionPanel(
-                //       headerBuilder: (BuildContext context, bool isExpanded) {
-                //         return const ListTile(
-                //           title: Text('Filters'),
-                //         );
-                //       },
-                //       body: Column(
-                //         children: <Widget>[
-                //           _buildDropdown('Color', colorItems.toList(), _selectedColor, (value) {
-                //             setState(() {
-                //               _selectedColor = value;
-                //               _loadTokenAndFetchWarnings();
-                //             });
-                //           }),
-                //           _buildDropdown('Type', typeItems.toList(), _selectedType, (value) {
-                //             setState(() {
-                //               _selectedType = value;
-                //               _loadTokenAndFetchWarnings();
-                //             });
-                //           }),
-                //           _buildDropdown('Severity', severityItems.toList(), _selectedSeverity, (value) {
-                //             setState(() {
-                //               _selectedSeverity = value;
-                //               _loadTokenAndFetchWarnings();
-                //             });
-                //           }),
-                //         ],
-                //       ),
-                //       isExpanded: _isFilterExpanded,
-                //     ),
-                //   ],
-                // ),
                 Expanded(
                   child: ListView.builder(
                     itemCount: warnings.length,
@@ -300,6 +330,31 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+Map<String, int> countWarningsByColor(List<Warning> warnings) {
+  Map<String, int> warningCounts = {};
+  for (var warning in warnings) {
+    if (warningCounts.containsKey(warning.color)) {
+      warningCounts[warning.color] = warningCounts[warning.color]! + 1;
+    } else {
+      warningCounts[warning.color] = 1;
+    }
+  }
+  return warningCounts;
+}
+
+Widget _buildFilterChip(String label, String? value, Function() onRemove) {
+  return value != null
+      ? Chip(
+          label: Text('$label: $value'),
+          deleteIcon: const Icon(Icons.close),
+          onDeleted: () {
+            onRemove();
+            _loadTokenAndFetchWarnings();
+          },
+        )
+      : Container();
+}
 
   Color getColorFromWarning(String color) {
     switch (color.toUpperCase()) {
