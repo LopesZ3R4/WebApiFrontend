@@ -21,11 +21,18 @@ class LoginScreenState extends State<LoginScreen> {
         _usernameController.text,
         _passwordController.text,
       );
-      Navigator.pushReplacementNamed(context, '/home');
+
+      final double shortestSide = MediaQuery.of(context).size.shortestSide;
+      if (shortestSide < 600) {
+        Navigator.pushReplacementNamed(context, '/mobilehome');
+      } else {
+        Navigator.pushReplacementNamed(context, '/desktophome');
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to login')),
       );
+      print(e);
     }
   }
 
