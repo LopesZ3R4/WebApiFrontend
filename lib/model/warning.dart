@@ -28,7 +28,11 @@ class Warning {
   final String definitionSourceAddress;
   final String definitionThreeLetterAcronym;
   final String definitionDescription;
-  bool? selected;
+  final int clientId;
+  final String clientName;
+  final String machineType;
+  bool sent;
+  bool selected;
   bool isExpanded;
 
   Warning({
@@ -60,7 +64,11 @@ class Warning {
     required this.definitionSourceAddress,
     required this.definitionThreeLetterAcronym,
     required this.definitionDescription,
-    this.selected,
+    required this.clientId,
+    required this.clientName,
+    required this.machineType,
+    required this.sent,
+    this.selected = false,
     this.isExpanded = false,
   });
   factory Warning.fromJson(Map<String, dynamic> json) {
@@ -93,6 +101,10 @@ class Warning {
       definitionSourceAddress: json['DefinitionSourceAddress'],
       definitionThreeLetterAcronym: json['DefinitionThreeLetterAcronym'],
       definitionDescription: json['DefinitionDescription'],
+      clientId: json['Machine']['ClientId'],
+      clientName: json['Machine']['Client']['Name'],
+      machineType: json['Machine']['Type'],
+      sent: json['Sent'],
       selected: false,
       isExpanded: false,
     );
