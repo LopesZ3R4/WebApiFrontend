@@ -309,7 +309,7 @@ class _HomeScreenState extends State<DesktopHomeScreen> {
                               visible: warnings[index].isExpanded,
                               child: ListTile(
                                 title: Text(
-                                  'Duration Type: ${warnings[index].durationType}, Duration Value: ${warnings[index].durationValue}, Engine Hours Value: ${warnings[index].engineHoursValue}, Latitude: ${warnings[index].lat}, Longitude: ${warnings[index].lon}, Cliente: ${warnings[index].clientName}, Maquina: Cliente: ${warnings[index].machineType}',
+                                  'Duration Type: ${warnings[index].durationType}, Duration Value: ${warnings[index].durationValue}, Engine Hours Value: ${warnings[index].engineHoursValue}, Latitude: ${warnings[index].lat}, Longitude: ${warnings[index].lon}, Cliente: ${warnings[index].clientName}, Maquina: ${warnings[index].machineType}',
                                   style: const TextStyle(color: Colors.black),
                                 ),
                               ),
