@@ -1,7 +1,8 @@
 // main.dart
 import 'package:flutter/material.dart';
 import 'screens/login.dart';
-import 'screens/home.dart';
+import 'screens/desktophome.dart';
+import 'screens/mobilehome.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,14 +14,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Machine Warnings Management System',
+      title: 'Warning Manager',
       theme: ThemeData(
-      primarySwatch: Colors.blue,
-      visualDensity: VisualDensity.adaptivePlatformDensity,
+        primarySwatch: Colors.blue,
       ),
-      home: const LoginScreen(),
+      initialRoute: '/',
       routes: {
-        '/home': (context) => const HomeScreen(),
+        '/': (context) => LoginScreen(),
+        '/mobilehome': (context) => MobileHomeScreen(),
+        '/desktophome': (context) => DesktopHomeScreen(),
       },
     );
   }
