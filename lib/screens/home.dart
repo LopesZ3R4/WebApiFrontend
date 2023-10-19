@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../services/warningservice.dart';
+import '../services/forwardingservice.dart';
 import '../model/warning.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -45,6 +46,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _warningService = WarningService();
+  final _forwardingService = ForwardingService();
   Future<Map<String, dynamic>> _warningsFuture = Future.value({});
   Set<String> colorItems = {};
   Set<String> typeItems = {};
@@ -263,6 +265,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     itemCount: warnings.length,
                     itemBuilder: (context, index) {
                       return Card(
+                        shape: RoundedRectangleBorder(
+                          side: warnings[index].sent
+                              ? const BorderSide(color: Colors.green, width: 2)
+                              : BorderSide.none,
+                          borderRadius: BorderRadius.circular(4.0),
+                        ),
                         child: Column(
                           children: <Widget>[
                             ListTile(
@@ -273,7 +281,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     value: warnings[index].selected,
                                     onChanged: (bool? value) {
                                       setState(() {
-                                        warnings[index].selected = value;
+                                        warnings[index].selected = value!;
                                       });
                                     },
                                   )
@@ -304,7 +312,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               visible: warnings[index].isExpanded,
                               child: ListTile(
                                 title: Text(
-                                  'Duration Type: ${warnings[index].durationType}, Duration Value: ${warnings[index].durationValue}, Engine Hours Value: ${warnings[index].engineHoursValue}, Latitude: ${warnings[index].lat}, Longitude: ${warnings[index].lon}',
+                                  'Duration Type: ${warnings[index].durationType}, Duration Value: ${warnings[index].durationValue}, Engine Hours Value: ${warnings[index].engineHoursValue}, Latitude: ${warnings[index].lat}, Longitude: ${warnings[index].lon}, Cliente: ${warnings[index].clientName}, Maquina: Cliente: ${warnings[index].machineType}',
                                   style: const TextStyle(color: Colors.black),
                                 ),
                               ),
@@ -323,6 +331,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                   ),
                 ),
+                TextButton(
+                onPressed: () async {
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  String token = prefs.getString('token') ?? '';
+                  _forwardingService.sendWarnings(token,warnings);
+                },
+                child: const Text('Enviar'),
+              ),
               ],
             );
           }
