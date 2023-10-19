@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../services/warningservice.dart';
 import '../services/forwardingservice.dart';
 import '../model/warning.dart';
+import '../utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 String? _selectedType;
@@ -37,14 +38,14 @@ Widget _buildDropdown(String label, List<String> items, String? selectedValue, F
   );
 }
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+class MobileHomeScreen extends StatefulWidget {
+  const MobileHomeScreen({Key? key}) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<MobileHomeScreen> {
   final _warningService = WarningService();
   final _forwardingService = ForwardingService();
   Future<Map<String, dynamic>> _warningsFuture = Future.value({});
@@ -114,30 +115,26 @@ class _HomeScreenState extends State<HomeScreen> {
     spacing: 8.0,
     runSpacing: 4.0,
     children: <Widget>[
-      _buildFilterChip('Color', _selectedColor, () {
+      buildFilterChip('Color', _selectedColor, () {
         setState(() {
           _selectedColor = null;
-          _loadTokenAndFetchWarnings();
         });
-      }),
-      _buildFilterChip('Type', _selectedType, () {
+      }, _loadTokenAndFetchWarnings),
+      buildFilterChip('Type', _selectedType, () {
         setState(() {
           _selectedType = null;
-          _loadTokenAndFetchWarnings();
         });
-      }),
-      _buildFilterChip('Severity', _selectedSeverity, () {
+      }, _loadTokenAndFetchWarnings),
+      buildFilterChip('Severity', _selectedSeverity, () {
         setState(() {
           _selectedSeverity = null;
-          _loadTokenAndFetchWarnings();
         });
-      }),
-      _buildFilterChip('Date', _selectedDate?.toIso8601String(), () {
+      }, _loadTokenAndFetchWarnings),
+      buildFilterChip('Date', _selectedDate as String?, () {
         setState(() {
           _selectedDate = null;
-          _loadTokenAndFetchWarnings();
         });
-      }),
+      }, _loadTokenAndFetchWarnings),
     ],
   );
 }
@@ -162,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Alerts',
+          'Alerts - Mobile',
           style: TextStyle(color: Colors.black),
         ),
         leading: Builder(
@@ -345,43 +342,5 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
     );
-  }
-
-Map<String, int> countWarningsByColor(List<Warning> warnings) {
-  Map<String, int> warningCounts = {};
-  for (var warning in warnings) {
-    if (warningCounts.containsKey(warning.color)) {
-      warningCounts[warning.color] = warningCounts[warning.color]! + 1;
-    } else {
-      warningCounts[warning.color] = 1;
-    }
-  }
-  return warningCounts;
-}
-
-Widget _buildFilterChip(String label, String? value, Function() onRemove) {
-  return value != null
-      ? Chip(
-          label: Text('$label: $value'),
-          deleteIcon: const Icon(Icons.close),
-          onDeleted: () {
-            onRemove();
-            _loadTokenAndFetchWarnings();
-          },
-        )
-      : Container();
-}
-
-  Color getColorFromWarning(String color) {
-    switch (color.toUpperCase()) {
-      case 'RED':
-        return const Color(0xFFF2392D);
-      case 'YELLOW':
-        return const Color(0xFFFECC1C);
-      case 'BLUE':
-        return const Color(0xFF3E74FE);
-      default:
-        return Colors.black;
-    }
   }
 }
