@@ -48,6 +48,9 @@ class DesktopHomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<DesktopHomeScreen> {
+  int _sortColumnIndex = 0;
+  bool _sortAscending = true;
+  List<Warning> warnings = [];
   final ScrollController _scrollController = ScrollController();
   final _warningService = WarningService();
   //final _machineService = MachineService();
@@ -65,6 +68,60 @@ class _HomeScreenState extends State<DesktopHomeScreen> {
       severityItems = warnings.map((warning) => warning.severity).toSet();
       machineTypeItems = warnings.map((warning) => warning.machineType).toSet();
     });
+  }
+
+  void _onSort(int columnIndex, bool ascending) {
+    if (columnIndex == _sortColumnIndex) {
+      _sortAscending = !_sortAscending;
+    } else {
+      _sortColumnIndex = columnIndex;
+      _sortAscending = true;
+    }
+    warnings.sort((a, b) {
+      int compare;
+      switch (columnIndex) {
+        case 0: // Sent column
+          compare = (a.sent ? 1 : 0).compareTo(b.sent ? 1 : 0);
+          break;
+        case 1: // Type column
+          compare = a.type.compareTo(b.type);
+          break;
+        case 2: // Occurrences column
+          compare = a.occurrences.compareTo(b.occurrences);
+          break;
+        case 3: // Engine Hours column
+          compare = a.engineHoursValue.compareTo(b.engineHoursValue);
+          break;
+        case 4: // Time column
+          compare = a.time.compareTo(b.time);
+          break;
+        case 5: // Long column
+          compare = a.lon.compareTo(b.lon);
+          break;
+        case 6: // Color column
+          compare = a.color.compareTo(b.color);
+          break;
+        case 7: // Severity column
+          compare = a.severity.compareTo(b.severity);
+          break;
+        case 8: // Definition Type column
+          compare = a.definitionType.compareTo(b.definitionType);
+          break;
+        case 9: // Description column
+          compare = a.definitionDescription.compareTo(b.definitionDescription);
+          break;
+        case 10: // Client column
+          compare = a.clientName.compareTo(b.clientName);
+          break;
+        case 11: // MachineType column
+          compare = a.machineType.compareTo(b.machineType);
+          break;
+        default:
+          compare = 0;
+      }
+      return _sortAscending ? compare : -compare;
+    });
+    setState(() {});
   }
 
   @override
@@ -170,7 +227,7 @@ class _HomeScreenState extends State<DesktopHomeScreen> {
       machineType: _selectedMachine,
     );
     _warningsFuture.then((data) {
-      List<Warning> warnings = data['warnings'];
+      warnings = data['warnings'];
       colorItems = warnings.map((warning) => warning.color).toSet();
       typeItems = warnings.map((warning) => warning.type).toSet();
       severityItems = warnings.map((warning) => warning.severity).toSet();
@@ -283,7 +340,8 @@ class _HomeScreenState extends State<DesktopHomeScreen> {
             colorItems = warnings.map((warning) => warning.color).toSet();
             typeItems = warnings.map((warning) => warning.type).toSet();
             severityItems = warnings.map((warning) => warning.severity).toSet();
-            machineTypeItems = warnings.map((warning) => warning.machineType).toSet();
+            machineTypeItems =
+                warnings.map((warning) => warning.machineType).toSet();
             Map<String, int> warningCounts = countWarningsByColor(warnings);
             Map<String, int> warningCountsbyType =
                 countWarningsByMachineType(warnings);
@@ -307,44 +365,104 @@ class _HomeScreenState extends State<DesktopHomeScreen> {
                       controller: _scrollController,
                       scrollDirection: Axis.horizontal,
                       child: DataTable(
-                        sortColumnIndex: 0,
-                        sortAscending: true,
-                        columns: const <DataColumn>[
+                        sortColumnIndex: _sortColumnIndex,
+                        sortAscending: _sortAscending,
+                        columns: <DataColumn>[
                           DataColumn(
-                            label: Text('Sent'),
+                            label: const Text('Sent'),
+                            onSort: (columnIndex, ascending) {
+                              setState(() {
+                                _onSort(columnIndex, !ascending);
+                              });
+                            },
                           ),
                           DataColumn(
-                            label: Text('Type'),
+                            label: const Text('Type'),
+                            onSort: (columnIndex, ascending) {
+                              setState(() {
+                                _onSort(columnIndex, !ascending);
+                              });
+                            },
                           ),
                           DataColumn(
-                            label: Text('Occurrences'),
+                            label: const Text('Occurrences'),
+                            onSort: (columnIndex, ascending) {
+                              setState(() {
+                                _onSort(columnIndex, !ascending);
+                              });
+                            },
                           ),
                           DataColumn(
-                            label: Text('Engine Hours'),
+                            label: const Text('Engine Hours'),
+                            onSort: (columnIndex, ascending) {
+                              setState(() {
+                                _onSort(columnIndex, !ascending);
+                              });
+                            },
                           ),
                           DataColumn(
-                            label: Text('Time'),
+                            label: const Text('Time'),
+                            onSort: (columnIndex, ascending) {
+                              setState(() {
+                                _onSort(columnIndex, !ascending);
+                              });
+                            },
                           ),
                           DataColumn(
-                            label: Text('Long'),
+                            label: const Text('Long'),
+                            onSort: (columnIndex, ascending) {
+                              setState(() {
+                                _onSort(columnIndex, !ascending);
+                              });
+                            },
                           ),
                           DataColumn(
-                            label: Text('Color'),
+                            label: const Text('Color'),
+                            onSort: (columnIndex, ascending) {
+                              setState(() {
+                                _onSort(columnIndex, !ascending);
+                              });
+                            },
                           ),
                           DataColumn(
-                            label: Text('Severity'),
+                            label: const Text('Severity'),
+                            onSort: (columnIndex, ascending) {
+                              setState(() {
+                                _onSort(columnIndex, !ascending);
+                              });
+                            },
                           ),
                           DataColumn(
-                            label: Text('Definition Type'),
+                            label: const Text('Definition Type'),
+                            onSort: (columnIndex, ascending) {
+                              setState(() {
+                                _onSort(columnIndex, !ascending);
+                              });
+                            },
                           ),
                           DataColumn(
-                            label: Text('Description'),
+                            label: const Text('Description'),
+                            onSort: (columnIndex, ascending) {
+                              setState(() {
+                                _onSort(columnIndex, !ascending);
+                              });
+                            },
                           ),
                           DataColumn(
-                            label: Text('Client'),
+                            label: const Text('Client'),
+                            onSort: (columnIndex, ascending) {
+                              setState(() {
+                                _onSort(columnIndex, !ascending);
+                              });
+                            },
                           ),
                           DataColumn(
-                            label: Text('MachineType'),
+                            label: const Text('MachineType'),
+                            onSort: (columnIndex, ascending) {
+                              setState(() {
+                                _onSort(columnIndex, !ascending);
+                              });
+                            },
                           ),
                         ],
                         rows: warnings.map<DataRow>((warning) {
