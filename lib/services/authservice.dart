@@ -4,8 +4,8 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  final String _baseUrl = 'http://192.168.0.243:8000';
-
+  //final String _baseUrl = 'http://172.28.208.1:8000';
+  final String _baseUrl = 'http://localhost:80';
   Future<String> login(String username, String password) async {
     try {
       final response = await http

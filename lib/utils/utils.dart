@@ -45,7 +45,6 @@ Color getColorFromWarning(String color) {
       return Colors.black;
   }
 }
-// lib/utils/utils.dart
 Widget buildMachineTypeFilter(Set<String> machineTypeItems, Map<String, int> countWarningsByMachineType, Function(String) onMachineTypeSelected) {
   return SingleChildScrollView(
     scrollDirection: Axis.horizontal,
