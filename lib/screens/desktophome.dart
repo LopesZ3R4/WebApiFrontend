@@ -13,8 +13,9 @@ String? _selectedType;
 String? _selectedColor;
 String? _selectedSeverity;
 String? _selectedMachine;
-DateTime? _selectedDate;
 int? _selectedClient;
+DateTime _startDate = DateTime.now().subtract(const Duration(days: 7));
+DateTime _endDate = DateTime.now();
 
 Widget _buildDropdown(String label, List<String> items, String? selectedValue,
     Function(String?) onChanged) {
@@ -183,6 +184,44 @@ class _HomeScreenState extends State<DesktopHomeScreen> {
     );
   }
 
+  Widget buildStartDatePicker() {
+    return buildDatePickerButton(
+      label: 'Start Date',
+      date: _startDate,
+      onPressed: () async {
+        final date = await showCustomDatePicker(
+          context: context,
+          initialDate: _startDate,
+        );
+        if (date != null) {
+          setState(() {
+            _startDate = date;
+          });
+          fetchWarnings();
+        }
+      },
+    );
+  }
+
+  Widget buildEndDatePicker() {
+    return buildDatePickerButton(
+      label: 'End Date',
+      date: _endDate,
+      onPressed: () async {
+        final date = await showCustomDatePicker(
+          context: context,
+          initialDate: _endDate,
+        );
+        if (date != null) {
+          setState(() {
+            _endDate = date;
+          });
+          fetchWarnings();
+        }
+      },
+    );
+  }
+
   Widget _buildFilters() {
     return Wrap(
       spacing: 8.0,
@@ -203,11 +242,16 @@ class _HomeScreenState extends State<DesktopHomeScreen> {
             _selectedSeverity = null;
           });
         }, fetchWarnings),
-        buildFilterChip('Date', _selectedDate as String?, () {
-          setState(() {
-            _selectedDate = null;
-          });
-        }, fetchWarnings),
+        // buildFilterChip('Data Inicial', _startDate as String?, () {
+        //   setState(() {
+        //     _startDate = null;
+        //   });
+        // }, fetchWarnings),
+        // buildFilterChip('Data Final', _endDate as String?, () {
+        //   setState(() {
+        //     _endDate = null;
+        //   });
+        // }, fetchWarnings),
         buildFilterChip('Machine', _selectedMachine, () {
           setState(() {
             _selectedMachine = null;
@@ -216,48 +260,54 @@ class _HomeScreenState extends State<DesktopHomeScreen> {
       ],
     );
   }
-Widget buildClientDropdown(String token) {
-  return FutureBuilder<List<Client>>(
-    future: ClientService().getClients(token),
-    builder: (BuildContext context, AsyncSnapshot<List<Client>> snapshot) {
-      if (snapshot.hasData) {
-        List<DropdownMenuItem<int?>> items = snapshot.data!.map((Client client) {
-          return DropdownMenuItem<int?>(
-            value: client.id,
-            child: Text(client.name),
+
+  Widget buildClientDropdown(String token) {
+    return FutureBuilder<List<Client>>(
+      future: ClientService().getClients(token),
+      builder: (BuildContext context, AsyncSnapshot<List<Client>> snapshot) {
+        if (snapshot.hasData) {
+          List<DropdownMenuItem<int?>> items =
+              snapshot.data!.map((Client client) {
+            return DropdownMenuItem<int?>(
+              value: client.id,
+              child: Text(client.name),
+            );
+          }).toList();
+
+          items.insert(
+              0,
+              const DropdownMenuItem<int?>(
+                value: null,
+                child: Text('Todos'),
+              ));
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Clientes',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              DropdownButton<int?>(
+                hint: const Text('Select Client'),
+                value: _selectedClient,
+                items: items,
+                onChanged: (int? value) {
+                  setState(() {
+                    _selectedClient = value;
+                  });
+                  fetchWarnings();
+                },
+              ),
+            ],
           );
-        }).toList();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          return const CircularProgressIndicator();
+        }
+      },
+    );
+  }
 
-        items.insert(0, const DropdownMenuItem<int?>(
-          value: null,
-          child: Text('Todos'),
-        ));
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Clientes', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            DropdownButton<int?>(
-              hint: const Text('Select Client'),
-              value: _selectedClient,
-              items: items,
-              onChanged: (int? value) {
-                setState(() {
-                  _selectedClient = value;
-                });
-                fetchWarnings();
-              },
-            ),
-          ],
-        );
-      } else if (snapshot.hasError) {
-        return Text('Error: ${snapshot.error}');
-      } else {
-        return const CircularProgressIndicator();
-      }
-    },
-  );
-}
   Future<void> fetchWarnings() async {
     final prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token') ?? '';
@@ -265,7 +315,8 @@ Widget buildClientDropdown(String token) {
         type: _selectedType,
         color: _selectedColor,
         severity: _selectedSeverity,
-        date: _selectedDate,
+        startDate: _startDate,
+        endDate: _endDate,
         machineType: _selectedMachine,
         clientid: _selectedClient);
     _warningsFuture.then((data) {
@@ -419,7 +470,9 @@ Widget buildClientDropdown(String token) {
                           return const CircularProgressIndicator();
                         }
                       },
-                    )
+                    ),
+                    buildStartDatePicker(),
+                    buildEndDatePicker(),
                   ],
                 ),
                 Expanded(

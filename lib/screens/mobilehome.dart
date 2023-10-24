@@ -11,7 +11,8 @@ String? _selectedType;
 String? _selectedColor;
 String? _selectedSeverity;
 String? _selectedMachine;
-DateTime? _selectedDate;
+DateTime _startDate = DateTime.now().subtract(const Duration(days: 7));
+DateTime _endDate = DateTime.now();
 
 Widget _buildDropdown(String label, List<String> items, String? selectedValue,
     Function(String?) onChanged) {
@@ -136,11 +137,6 @@ class _HomeScreenState extends State<MobileHomeScreen> {
             _selectedSeverity = null;
           });
         }, fetchWarnings),
-        buildFilterChip('Date', _selectedDate as String?, () {
-          setState(() {
-            _selectedDate = null;
-          });
-        }, fetchWarnings),
         buildFilterChip('Machine', _selectedMachine, () {
           setState(() {
             _selectedMachine = null;
@@ -158,7 +154,8 @@ class _HomeScreenState extends State<MobileHomeScreen> {
       type: _selectedType,
       color: _selectedColor,
       severity: _selectedSeverity,
-      date: _selectedDate,
+      startDate: _startDate,
+      endDate: _endDate,
       machineType: _selectedMachine,
     );
     _warningsFuture.then((data) {

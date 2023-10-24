@@ -12,7 +12,8 @@ class WarningService {
       String? type,
       String? color,
       String? severity,
-      DateTime? date,
+      required DateTime startDate,
+      required DateTime endDate,
       String? machineType,
       int? clientid}) async {
     try {
@@ -27,16 +28,13 @@ class WarningService {
       if (severity != null) {
         url += '&severity=$severity';
       }
-      if (date != null) {
-        url += '&date=${date.toIso8601String()}';
-      }
       if (machineType != null) {
         url += '&machineType=$machineType';
       }
       if (clientid != null) {
         url += '&clientid=$clientid';
       }
-
+      url += '&startDate=${startDate.toIso8601String()}&endDate=${endDate.toIso8601String()}';
       final response = await http.get(
         Uri.parse(url),
         headers: <String, String>{

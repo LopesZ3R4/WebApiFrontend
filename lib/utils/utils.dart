@@ -1,5 +1,6 @@
 // lib/utils/utils.dart
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../model/warning.dart';
 import 'icon_utils.dart';
 
@@ -84,5 +85,27 @@ Widget buildMachineTypeFilter(Set<String> machineTypeItems, Map<String, int> cou
         );
       }).toList(),
     ),
+  );
+}
+Future<DateTime?> showCustomDatePicker({
+  required BuildContext context,
+  required DateTime initialDate,
+}) {
+  return showDatePicker(
+    context: context,
+    initialDate: initialDate,
+    firstDate: DateTime(2000),
+    lastDate: DateTime(2100),
+  );
+}
+
+Widget buildDatePickerButton({
+  required String label,
+  required DateTime date,
+  required VoidCallback onPressed,
+}) {
+  return ElevatedButton(
+    onPressed: onPressed,
+    child: Text('$label: ${DateFormat('yyyy-MM-dd').format(date)}'),
   );
 }
