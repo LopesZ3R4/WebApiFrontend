@@ -45,41 +45,45 @@ Color getColorFromWarning(String color) {
       return Colors.black;
   }
 }
+// lib/utils/utils.dart
 Widget buildMachineTypeFilter(Set<String> machineTypeItems, Map<String, int> countWarningsByMachineType, Function(String) onMachineTypeSelected) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: machineTypeItems.map((machineType) {
-      return InkWell(
-        child: Stack(
-          children: <Widget>[
-            IconUtils.getIconForMachineType(machineType),
-            Positioned(
-              left: 0,
-              top: 0,
-              child: Container(
-                padding: const EdgeInsets.all(1),
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                constraints: const BoxConstraints(
-                  minWidth: 12,
-                  minHeight: 12,
-                ),
-                child: Text(
-                  '${countWarningsByMachineType[machineType] ?? 0}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
+  return SingleChildScrollView(
+    scrollDirection: Axis.horizontal,
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: machineTypeItems.map((machineType) {
+        return InkWell(
+          child: Stack(
+            children: <Widget>[
+              IconUtils.getIconForMachineType(machineType),
+              Positioned(
+                left: 0,
+                top: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(1),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(6),
                   ),
-                  textAlign: TextAlign.center,
+                  constraints: const BoxConstraints(
+                    minWidth: 12,
+                    minHeight: 12,
+                  ),
+                  child: Text(
+                    '${countWarningsByMachineType[machineType] ?? 0}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
-        onTap: () => onMachineTypeSelected(machineType),
-      );
-    }).toList(),
+            ],
+          ),
+          onTap: () => onMachineTypeSelected(machineType),
+        );
+      }).toList(),
+    ),
   );
 }

@@ -1,6 +1,5 @@
 // lib/utils/icon_utils.dart
 import 'package:flutter/widgets.dart';
-
 class IconUtils {
   static const Map<String, String> machineTypeIcons = {
     'Combine': 'icons/Combine.png',
@@ -18,4 +17,3 @@ class IconUtils {
     return Image.asset(iconPath, width: 62, height: 62);
   }
 }
-// usage: Image icon = IconUtils.getIconForMachineType('Tractor');
