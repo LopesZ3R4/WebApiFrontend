@@ -1,6 +1,8 @@
 // lib/screens/home.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../model/client.dart';
+import '../services/clientservices.dart';
 import '../services/warningservice.dart';
 import '../services/forwardingservice.dart';
 import '../model/warning.dart';
@@ -12,6 +14,7 @@ String? _selectedColor;
 String? _selectedSeverity;
 String? _selectedMachine;
 DateTime? _selectedDate;
+int? _selectedClient;
 
 Widget _buildDropdown(String label, List<String> items, String? selectedValue,
     Function(String?) onChanged) {
@@ -53,7 +56,6 @@ class _HomeScreenState extends State<DesktopHomeScreen> {
   List<Warning> warnings = [];
   final ScrollController _scrollController = ScrollController();
   final _warningService = WarningService();
-  //final _machineService = MachineService();
   final _forwardingService = ForwardingService();
   Future<Map<String, dynamic>> _warningsFuture = Future.value({});
   Set<String> colorItems = {};
@@ -214,18 +216,58 @@ class _HomeScreenState extends State<DesktopHomeScreen> {
       ],
     );
   }
+Widget buildClientDropdown(String token) {
+  return FutureBuilder<List<Client>>(
+    future: ClientService().getClients(token),
+    builder: (BuildContext context, AsyncSnapshot<List<Client>> snapshot) {
+      if (snapshot.hasData) {
+        List<DropdownMenuItem<int?>> items = snapshot.data!.map((Client client) {
+          return DropdownMenuItem<int?>(
+            value: client.id,
+            child: Text(client.name),
+          );
+        }).toList();
 
+        items.insert(0, const DropdownMenuItem<int?>(
+          value: null,
+          child: Text('Todos'),
+        ));
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Clientes', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            DropdownButton<int?>(
+              hint: const Text('Select Client'),
+              value: _selectedClient,
+              items: items,
+              onChanged: (int? value) {
+                setState(() {
+                  _selectedClient = value;
+                });
+                fetchWarnings();
+              },
+            ),
+          ],
+        );
+      } else if (snapshot.hasError) {
+        return Text('Error: ${snapshot.error}');
+      } else {
+        return const CircularProgressIndicator();
+      }
+    },
+  );
+}
   Future<void> fetchWarnings() async {
     final prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token') ?? '';
-    _warningsFuture = _warningService.getWarnings(
-      token,
-      type: _selectedType,
-      color: _selectedColor,
-      severity: _selectedSeverity,
-      date: _selectedDate,
-      machineType: _selectedMachine,
-    );
+    _warningsFuture = _warningService.getWarnings(token,
+        type: _selectedType,
+        color: _selectedColor,
+        severity: _selectedSeverity,
+        date: _selectedDate,
+        machineType: _selectedMachine,
+        clientid: _selectedClient);
     _warningsFuture.then((data) {
       warnings = data['warnings'];
       colorItems = warnings.map((warning) => warning.color).toSet();
@@ -349,14 +391,37 @@ class _HomeScreenState extends State<DesktopHomeScreen> {
             return Column(
               children: [
                 _buildFilters(),
-                buildWarningCard(warningCounts),
-                buildMachineTypeFilter(machineTypeItems, warningCountsbyType,
-                    (machineType) {
-                  setState(() {
-                    _selectedMachine = machineType;
-                    fetchWarnings();
-                  });
-                }),
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: buildWarningCard(warningCounts),
+                    ),
+                    Expanded(
+                      child: buildMachineTypeFilter(
+                          machineTypeItems, warningCountsbyType, (machineType) {
+                        setState(() {
+                          _selectedMachine = machineType;
+                          fetchWarnings();
+                        });
+                      }),
+                    ),
+                    FutureBuilder<String>(
+                      future: loadToken(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<String> snapshot) {
+                        if (snapshot.hasData) {
+                          return Expanded(
+                            child: buildClientDropdown(snapshot.data ?? ''),
+                          );
+                        } else if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        } else {
+                          return const CircularProgressIndicator();
+                        }
+                      },
+                    )
+                  ],
+                ),
                 Expanded(
                   child: Scrollbar(
                     thumbVisibility: true,
