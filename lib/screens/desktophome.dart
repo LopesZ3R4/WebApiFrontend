@@ -186,7 +186,7 @@ class _HomeScreenState extends State<DesktopHomeScreen> {
 
   Widget buildStartDatePicker() {
     return buildDatePickerButton(
-      label: 'Start Date',
+      label: 'Data Inicio',
       date: _startDate,
       onPressed: () async {
         final date = await showCustomDatePicker(
@@ -205,7 +205,7 @@ class _HomeScreenState extends State<DesktopHomeScreen> {
 
   Widget buildEndDatePicker() {
     return buildDatePickerButton(
-      label: 'End Date',
+      label: 'Data Fim',
       date: _endDate,
       onPressed: () async {
         final date = await showCustomDatePicker(

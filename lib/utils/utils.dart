@@ -15,13 +15,16 @@ Map<String, int> countWarningsByColor(List<Warning> warnings) {
   }
   return warningCounts;
 }
+
 Map<String, int> countWarningsByMachineType(List<Warning> warnings) {
   return warnings.fold<Map<String, int>>({}, (map, warning) {
     map[warning.machineType] = (map[warning.machineType] ?? 0) + 1;
     return map;
   });
 }
-Widget buildFilterChip(String label, String? value, Function() onRemove, Function() onDeleted) {
+
+Widget buildFilterChip(
+    String label, String? value, Function() onRemove, Function() onDeleted) {
   return value != null
       ? Chip(
           label: Text('$label: $value'),
@@ -46,7 +49,11 @@ Color getColorFromWarning(String color) {
       return Colors.black;
   }
 }
-Widget buildMachineTypeFilter(Set<String> machineTypeItems, Map<String, int> countWarningsByMachineType, Function(String) onMachineTypeSelected) {
+
+Widget buildMachineTypeFilter(
+    Set<String> machineTypeItems,
+    Map<String, int> countWarningsByMachineType,
+    Function(String) onMachineTypeSelected) {
   return SingleChildScrollView(
     scrollDirection: Axis.horizontal,
     child: Row(
@@ -87,6 +94,7 @@ Widget buildMachineTypeFilter(Set<String> machineTypeItems, Map<String, int> cou
     ),
   );
 }
+
 Future<DateTime?> showCustomDatePicker({
   required BuildContext context,
   required DateTime initialDate,
@@ -105,7 +113,21 @@ Widget buildDatePickerButton({
   required VoidCallback onPressed,
 }) {
   return ElevatedButton(
+    style: ElevatedButton.styleFrom(
+      foregroundColor: Colors.white,
+      backgroundColor: Colors.grey,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+    ),
     onPressed: onPressed,
-    child: Text('$label: ${DateFormat('yyyy-MM-dd').format(date)}'),
+    child: Text(
+      '$label: ${DateFormat('dd/MM/yyyy').format(date)}',
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 16,
+      ),
+    ),
   );
 }
